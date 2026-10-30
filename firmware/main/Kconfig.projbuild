@@ -1,0 +1,79 @@
+menu "IoT platform - local hardware"
+
+    config IOT_SAMPLE_INTERVAL_MS
+        int "Sample interval in milliseconds"
+        range 100 10000
+        default 1000
+        help
+            Delay between readings. The LED demo also toggles once per interval.
+            This local demo interval is independent of future MQTT telemetry timing.
+
+    config IOT_RELAY_DEMO
+        bool "Automatically toggle the relay output (LED demo)"
+        depends on !IOT_MQTT_ENABLED
+        default n
+        help
+            Toggle GPIO26 after each sample delay, starting OFF.
+            Disable to keep the output OFF until explicitly commanded by code.
+
+    config IOT_RELAY_ACTIVE_LOW
+        bool "Relay output is active LOW"
+        default n
+        help
+            Leave disabled for the current GPIO26-to-resistor-to-LED-to-GND setup.
+            Enable only for a relay module whose input is active LOW.
+
+endmenu
+
+menu "IoT platform - Wi-Fi"
+
+    config IOT_WIFI_SSID
+        string "Wi-Fi network name (SSID)"
+        default ""
+        help
+            Your 2.4 GHz network name, 1-32 bytes. Empty disables Wi-Fi.
+            Saved locally in sdkconfig. Do not put real credentials in defaults.
+
+    config IOT_WIFI_PASSWORD
+        string "Wi-Fi passphrase"
+        default ""
+        help
+            WPA2/WPA3 Personal passphrase, 8-63 bytes. Case-sensitive.
+            This value is visible in menuconfig and embedded in the firmware.
+            Keep sdkconfig and build artifacts private.
+
+    config IOT_WIFI_RETRY_SECONDS
+        int "Delay before retrying a failed connection (seconds)"
+        range 1 60
+        default 5
+        help
+            Only the Wi-Fi worker waits. The sensor and relay demo keep running.
+
+endmenu
+
+menu "IoT platform - MQTT"
+
+    config IOT_MQTT_ENABLED
+        bool "Enable MQTT (disables automatic relay demo)"
+        default y
+
+    config IOT_MQTT_BROKER_URI
+        string "PC Mosquitto broker URI"
+        default ""
+        help
+            Set mqtt://YOUR_PC_LAN_IP:1883. Not localhost and not the ESP32 IP.
+            Empty skips MQTT. This lesson uses a local anonymous TCP listener.
+
+    config IOT_DEVICE_ID
+        string "Device ID and MQTT client ID"
+        default "esp32-livingroom-01"
+        help
+            Use 1-48 letters/digits/hyphens/underscores. Must be unique on broker.
+            Keep the default to match the existing database device seed.
+
+    config IOT_TELEMETRY_INTERVAL_MS
+        int "Telemetry publish interval (milliseconds)"
+        range 1000 60000
+        default 4000
+
+endmenu
